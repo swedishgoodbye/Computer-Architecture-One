@@ -70,6 +70,9 @@ class CPU {
         // right now.)
 
         // !!! IMPLEMENT ME
+        let IR = this.ram.read(this.PC);
+
+
 
         // Debugging output
         //console.log(`${this.PC}: ${IR.toString(2)}`);

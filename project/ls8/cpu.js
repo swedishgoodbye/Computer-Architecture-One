@@ -2,6 +2,16 @@
  * LS-8 v2.0 emulator skeleton code
  */
 
+const ADD = 0b10101000;
+const AND = 0b10110011;
+const CAL = 0b01001000;
+const CMP = 0b10100000;
+const DEC = 0b01111001;
+const HLT = 0b10101011;
+const LDI = 0b10011001;
+const PRN = 0b01000011;
+const MUL = 0b10101010;
+
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
@@ -19,12 +29,7 @@ class CPU {
         this.PC = 0; // Program Counter
 
         // Setting Operations
-        const ADD = 0b10101000;
-        const AND = 0b10110011;
-        const CAL = 0b01001000;
-        const CMP = 0b10100000;
-        const DEC = 0b01111001;
-        const HLT = 0b10101011;
+
 
     }
     
@@ -65,7 +70,7 @@ class CPU {
         switch (op) {
             case 'MUL':
                 // !!! IMPLEMENT ME
-                regA *= regB;
+                this.reg[regA] *= this.reg[regB];
                 break;
         }
     }
@@ -85,18 +90,15 @@ class CPU {
 
 
         // Debugging output
-        //console.log(`${this.PC}: ${IR.toString(2)}`);
+        // console.log(`${this.PC}: ${IR.toString(2)}`);
 
         // Get the two bytes in memory _after_ the PC in case the instruction
         // needs them.
 
         // !!! IMPLEMENT ME
 
-        let operandA = this.ram.read(PC+1);
-        let operandB = this.ram.read(PC+2);
-
-        let regA = this.reg[operandA];
-        let regB = this.reg[operandB];
+        let operandA = this.ram.read(this.PC + 1);
+        let operandB = this.ram.read(this.PC + 2);
 
 
 
@@ -105,21 +107,27 @@ class CPU {
 
         // !!! IMPLEMENT ME
 
-        if(IR === ADD){
-            return regA += regB;
+        
+        switch(IR){
+
+            case LDI:
+                this.reg[operandA] = operandB;
+                // this.PC += 3;
+                break;
+            case MUL:
+                this.alu('MUL', operandA, operandB);
+                break;
+            case PRN: 
+                console.log(this.reg[operandA]);
+                // this.PC += 2;
+                break;
+            case HLT:
+                this.stopClock();
+                break;
+            default:
+                console.log(`Unknown at ${this.PC}: ${IR.toString(2)}`);
+                this.stopClock();
         }
-        if(IR === AND){
-            return regA = regA & regB
-        }
-        if(IR === CAL){
-            return this.reg;
-        }
-        if(IR === CMP){
-            if(regA === regB){
-                
-            }
-        }
-    
 
 
         // Increment the PC register to go to the next instruction. Instructions
@@ -128,6 +136,7 @@ class CPU {
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
+        this.PC += (IR >> 6) + 1;
     }
 }
 

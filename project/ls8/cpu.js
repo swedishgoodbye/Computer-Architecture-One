@@ -17,6 +17,15 @@ class CPU {
         
         // Special-purpose registers
         this.PC = 0; // Program Counter
+
+        // Setting Operations
+        const ADD = 0b10101000;
+        const AND = 0b10110011;
+        const CAL = 0b01001000;
+        const CMP = 0b10100000;
+        const DEC = 0b01111001;
+        const HLT = 0b10101011;
+
     }
     
     /**
@@ -56,6 +65,7 @@ class CPU {
         switch (op) {
             case 'MUL':
                 // !!! IMPLEMENT ME
+                regA *= regB;
                 break;
         }
     }
@@ -82,10 +92,35 @@ class CPU {
 
         // !!! IMPLEMENT ME
 
+        let operandA = this.ram.read(PC+1);
+        let operandB = this.ram.read(PC+2);
+
+        let regA = this.reg[operandA];
+        let regB = this.reg[operandB];
+
+
+
         // Execute the instruction. Perform the actions for the instruction as
         // outlined in the LS-8 spec.
 
         // !!! IMPLEMENT ME
+
+        if(IR === ADD){
+            return regA += regB;
+        }
+        if(IR === AND){
+            return regA = regA & regB
+        }
+        if(IR === CAL){
+            return this.reg;
+        }
+        if(IR === CMP){
+            if(regA === regB){
+                
+            }
+        }
+    
+
 
         // Increment the PC register to go to the next instruction. Instructions
         // can be 1, 2, or 3 bytes long. Hint: the high 2 bits of the

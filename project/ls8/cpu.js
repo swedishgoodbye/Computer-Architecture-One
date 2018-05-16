@@ -11,6 +11,8 @@ const HLT = 0b10101011;
 const LDI = 0b10011001;
 const PRN = 0b01000011;
 const MUL = 0b10101010;
+const PUSH = 0b01001101;
+const POP = 0b01001100;
 
 /**
  * Class for simulating a simple Computer (CPU & memory)
@@ -27,6 +29,7 @@ class CPU {
         
         // Special-purpose registers
         this.PC = 0; // Program Counter
+        this.reg[7] = 0xF4;
 
         // Setting Operations
 
@@ -55,6 +58,8 @@ class CPU {
     stopClock() {
         clearInterval(this.clock);
     }
+
+
 
     /**
      * ALU functionality
@@ -86,7 +91,8 @@ class CPU {
 
         // !!! IMPLEMENT ME
         let IR = this.ram.read(this.PC);
-
+        // let SP = this.ram.read(this.SP)
+        // console.log(this.SP)
 
 
         // Debugging output
@@ -99,7 +105,7 @@ class CPU {
 
         let operandA = this.ram.read(this.PC + 1);
         let operandB = this.ram.read(this.PC + 2);
-
+        
 
 
         // Execute the instruction. Perform the actions for the instruction as
@@ -109,13 +115,24 @@ class CPU {
 
         
         switch(IR){
+            
 
             case LDI:
                 this.reg[operandA] = operandB;
                 // this.PC += 3;
                 break;
+
             case MUL:
                 this.alu('MUL', operandA, operandB);
+                break;
+            case PUSH:
+                let reg;
+                this.reg[7]--;
+                this.ram.write(this.reg[7], this.reg[operandA]);
+                break;
+            case POP:
+                this.reg[operandA] = this.ram.read(this.reg[7])
+                this.reg[7]++;
                 break;
             case PRN: 
                 console.log(this.reg[operandA]);
@@ -125,7 +142,7 @@ class CPU {
                 this.stopClock();
                 break;
             default:
-                console.log(`Unknown at ${this.PC}: ${IR.toString(2)}`);
+                // console.log(`Unknown at ${this.PC}: ${IR.toString(2)}`);
                 this.stopClock();
         }
 

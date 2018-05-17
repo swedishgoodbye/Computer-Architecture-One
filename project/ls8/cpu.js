@@ -4,15 +4,21 @@
 
 const ADD = 0b10101000;
 const AND = 0b10110011;
-const CAL = 0b01001000;
 const CMP = 0b10100000;
 const DEC = 0b01111001;
+const INC = 0b01111000;
 const HLT = 0b10101011;
 const LDI = 0b10011001;
 const PRN = 0b01000011;
 const MUL = 0b10101010;
 const PUSH = 0b01001101;
 const POP = 0b01001100;
+const JMP = 0b0101000;
+const CALL = 0b01001000;
+const RET = 0b00001001;
+// const FL_EQ = 0b001;
+// const FL_GT = 0b010;
+// const FL_LT = 0b100;
 
 /**
  * Class for simulating a simple Computer (CPU & memory)
@@ -30,6 +36,8 @@ class CPU {
         // Special-purpose registers
         this.PC = 0; // Program Counter
         this.reg[7] = 0xF4;
+
+        // this.FL;
 
         // Setting Operations
 
@@ -77,8 +85,23 @@ class CPU {
                 // !!! IMPLEMENT ME
                 this.reg[regA] *= this.reg[regB];
                 break;
-        }
+            case 'ADD':
+                this.reg[regA] += this.reg[regB];
+                break;
+            case 'INC':
+                this.reg[regA]++;
+                break;
+            case 'DEC':
+                this.reg[regA]--;
+                break;
+        }  
     }
+
+    // ah_push_it(){
+    //     this.reg[7]--;
+    //     this.ram.write(this.reg[7], this.reg[operandA]);
+    //     break;
+    // }
 
     /**
      * Advances the CPU one cycle
@@ -121,18 +144,36 @@ class CPU {
                 this.reg[operandA] = operandB;
                 // this.PC += 3;
                 break;
-
             case MUL:
                 this.alu('MUL', operandA, operandB);
                 break;
+            case ADD:
+                this.alu('ADD', operandA, operandB);
+                break;   
+            case INC:
+                this.alu('INC', operandA);
+                break;
+            case DEC:
+                this.alu('DEC', operandA);
+                break;
             case PUSH:
-                let reg;
+                // let reg;
                 this.reg[7]--;
                 this.ram.write(this.reg[7], this.reg[operandA]);
                 break;
             case POP:
                 this.reg[operandA] = this.ram.read(this.reg[7])
                 this.reg[7]++;
+                break;
+            case CALL:
+                this.reg[7]--;
+                this.ram.write(this.reg[7], this.PC + 2);
+                this.PC = this.reg[operandA];
+                break;
+            case RET:
+                this.PC = this.ram.read(this.reg[7])
+                this.reg[7]++;
+                
                 break;
             case PRN: 
                 console.log(this.reg[operandA]);
@@ -142,7 +183,7 @@ class CPU {
                 this.stopClock();
                 break;
             default:
-                // console.log(`Unknown at ${this.PC}: ${IR.toString(2)}`);
+                console.log(`Unknown at ${this.PC}: ${IR.toString(2)}`);
                 this.stopClock();
         }
 
@@ -153,7 +194,9 @@ class CPU {
         // for any particular instruction.
         
         // !!! IMPLEMENT ME
+        if(IR !== CALL && IR !== JMP && IR !== RET){
         this.PC += (IR >> 6) + 1;
+        }
     }
 }
 
